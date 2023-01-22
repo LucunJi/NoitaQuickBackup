@@ -1,8 +1,8 @@
 # Features
-- [ ] backup
-  - [ ] avoid file collision
+- [x] backup
+  - [x] avoid file collision
   - [ ] delete backup
-  - [ ] flexible with other archive format
+  - [x] flexible with other archive format
   - [ ] customizable default name format
 - [ ] load
   - [ ] confirmation
@@ -11,10 +11,11 @@
   - [ ] customizable name format
   - [ ] maximum quick backup amount
 - [ ] misc
-  - [ ] sync when backup directory changes
   - [ ] rename backup
-  - [ ] config screen
   - [ ] subdir for different series of saves
+  - [ ] better error-handling
+  - [ ] sync when backup directory changes
+  - [ ] config screen
   - [ ] localization
   - [ ] formats other than zip
   - [ ] in-game screenshot as a thumbnail

@@ -42,6 +42,12 @@
                       <text value="Load"/>
                     </properties>
                   </component>
+                  <component id="6fa01" class="javax.swing.JButton" binding="refreshButton" default-binding="true">
+                    <constraints/>
+                    <properties>
+                      <text value="Refresh"/>
+                    </properties>
+                  </component>
                 </children>
               </grid>
               <scrollpane id="bd4b3">
@@ -49,7 +55,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <grid id="4d225" binding="savesPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
+                  <grid id="4d225" binding="backupsPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
                     <constraints/>
                     <properties/>
                     <border type="none"/>
