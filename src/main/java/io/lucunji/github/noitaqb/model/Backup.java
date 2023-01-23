@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Backup {
@@ -45,5 +46,22 @@ public class Backup {
 
     public Optional<Long> getSeed() {
         return Optional.ofNullable(seed);
+    }
+
+    public Path getPath() {
+        return this.directory.resolve(this.name + "." + this.extension);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Backup backup = (Backup) o;
+        return name.equals(backup.name) && extension.equals(backup.extension) && directory.equals(backup.directory);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, extension, directory);
     }
 }

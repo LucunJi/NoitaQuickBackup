@@ -4,6 +4,7 @@ import io.lucunji.github.noitaqb.model.Backup;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.examples.Archiver;
+import org.apache.commons.compress.archivers.examples.Expander;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -17,7 +18,9 @@ import java.util.Set;
 public class BackupUtils {
     private static final String SAVE_SLOT_0 = "save00";
     private static final Set<String> BACKUP_EXTENSIONS = Set.of("zip");
-    public static final FileTime OLDEST_FILETIME = FileTime.fromMillis(Long.MIN_VALUE);
+    private static final FileTime OLDEST_FILETIME = FileTime.fromMillis(Long.MIN_VALUE);
+    private static final Archiver DEFAULT_ARCHIVER = new Archiver();
+    private static final Expander DEFAULT_EXPANDER = new Expander();
 
     /**
      * All backups with valid extensions
@@ -39,7 +42,7 @@ public class BackupUtils {
     }
 
     public static Backup makeBackup(String name, String backupPath, String savePath, ArchiveMode mode) throws IOException, ArchiveException {
-        var dir = Paths.get(savePath, SAVE_SLOT_0).toFile();
+        var dir = Paths.get(savePath, SAVE_SLOT_0);
         var backupDir = Path.of(backupPath);
         var backup = Paths.get(backupPath, name + "." + mode.extension);
 
@@ -55,11 +58,25 @@ public class BackupUtils {
             throw new UnsupportedOperationException("Compressed archive");
         } else {
             try (var output = new ArchiveStreamFactory().createArchiveOutputStream(
-                    mode.archiverName, new BufferedOutputStream(new FileOutputStream(backup.toFile())))) {
-                new Archiver().create(output, dir);
+                    mode.archiverName, new BufferedOutputStream(new FileOutputStream(backup.toFile()))
+            )) {
+                DEFAULT_ARCHIVER.create(output, dir);
             }
         }
 
         return new Backup(backup);
+    }
+
+    public static void loadBackup(Path backupPath, String savePath) throws IOException, ArchiveException {
+        var dir = Paths.get(savePath, SAVE_SLOT_0);
+
+        dir.toFile().delete();
+        dir.toFile().mkdir();
+
+        try (var input = new ArchiveStreamFactory().createArchiveInputStream(
+                new BufferedInputStream(new FileInputStream(backupPath.toFile()))
+        )) {
+            DEFAULT_EXPANDER.expand(input, dir.toFile());
+        }
     }
 }

@@ -1,17 +1,18 @@
 # Features
 - [x] backup
   - [x] avoid file collision
-  - [ ] delete backup
   - [x] flexible with other archive format
   - [ ] customizable default name format
-- [ ] load
+- [x] load
   - [ ] confirmation
-  - [ ] backup replaced save
-- [ ] quick backup
+  - [x] backup replaced save
+- [x] quick backup
   - [ ] customizable name format
   - [ ] maximum quick backup amount
 - [ ] misc
+  - [ ] delete backup
   - [ ] rename backup
+  - [ ] partial backup/load
   - [ ] subdir for different series of saves
   - [ ] better error-handling
   - [ ] sync when backup directory changes

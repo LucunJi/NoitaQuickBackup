@@ -1,23 +1,19 @@
-package io.lucunji.github.noitaqb;
+package io.lucunji.github.noitaqb.gui;
 
 import io.lucunji.github.noitaqb.config.ConfigManager;
-import io.lucunji.github.noitaqb.utils.ArchiveMode;
 import io.lucunji.github.noitaqb.model.Backup;
+import io.lucunji.github.noitaqb.utils.ArchiveMode;
 import io.lucunji.github.noitaqb.utils.BackupUtils;
 import org.apache.commons.compress.archivers.ArchiveException;
 
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
-import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.nio.file.Path;
 
 public class MainWindow {
-    public static final String BACKUP_TIME_PATTERN = "yyyy-MM-dd hh:mm:ss";
-    public static final String UNKNOWN_STRING = "unknown";
-
     public JPanel rootPane;
     private JButton backupButton;
     private JButton loadButton;
@@ -26,6 +22,8 @@ public class MainWindow {
     private JButton refreshButton;
 
     private final ConfigManager cfgManager;
+
+    private final ButtonGroup backupEntriesGroup;
 
     public MainWindow(ConfigManager cfgManager) {
         this.cfgManager = cfgManager;
@@ -38,6 +36,17 @@ public class MainWindow {
         loadButton.addActionListener(this::onLoadButtonClicked);
         qbButton.addActionListener(this::onQbButtonClicked);
         refreshButton.addActionListener(this::onRefreshButtonClicked);
+        backupsPanel.addContainerListener(new ContainerAdapter() {
+            @Override
+            public void componentRemoved(ContainerEvent e) {
+                var component = e.getChild();
+                if (component instanceof BackupEntryPanel) {
+                    ((BackupEntryPanel) component).deregisterRadioButton(backupEntriesGroup);
+                }
+            }
+        });
+
+        backupEntriesGroup = new ButtonGroup();
 
         reloadBackups();
     }
@@ -57,6 +66,30 @@ public class MainWindow {
     }
 
     private void onLoadButtonClicked(ActionEvent event) {
+        Path path = null;
+        for (var c : backupsPanel.getComponents()) {
+            if (c instanceof BackupEntryPanel && ((BackupEntryPanel) c).isSelected()) {
+                path = ((BackupEntryPanel) c).getBackup().getPath();
+                break;
+            }
+        }
+        if (path == null) {
+            JOptionPane.showMessageDialog(this.rootPane, "No backup is selected");
+            return;
+        }
+        if (!path.toFile().isFile()) {
+            JOptionPane.showMessageDialog(this.rootPane, "Backup not found", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        var replacedSaveName = "quickbackup-" + System.currentTimeMillis() + " (replaced)";
+        addBackup(replacedSaveName);
+
+        try {
+            BackupUtils.loadBackup(path, cfgManager.getConfigs().getGeneral().getSavePath());
+        } catch (IOException | ArchiveException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void onRefreshButtonClicked(ActionEvent event) {
@@ -101,25 +134,6 @@ public class MainWindow {
     }
 
     private JPanel makeBackupPanel(Backup backup) {
-        // Components
-        var save = new JPanel(new GridLayout(2, 2));
-        save.add(new JLabel(backup.getName()));
-        var time = backup.getFileAttributes().map(
-                f -> DateTimeFormatter.ofPattern(BACKUP_TIME_PATTERN)
-                        .withZone(ZoneId.systemDefault())
-                        .format(f.creationTime().toInstant())
-        ).orElse(UNKNOWN_STRING);
-        save.add(new JLabel(time));
-        // TODO: actual seed
-        save.add(new JLabel("seed: " + UNKNOWN_STRING));
-
-        // Styling
-        save.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(5, 5, 0, 5),
-                BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)));
-
-        // Resizing
-        save.setMaximumSize(new Dimension(save.getMaximumSize().width, save.getPreferredSize().height));
-        return save;
+        return new BackupEntryPanel(backup, backupEntriesGroup);
     }
 }

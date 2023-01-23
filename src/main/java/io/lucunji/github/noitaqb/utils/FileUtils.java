@@ -3,13 +3,8 @@ package io.lucunji.github.noitaqb.utils;
 import io.lucunji.github.noitaqb.Main;
 import org.apache.commons.compress.utils.FileNameUtils;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.util.Optional;
 
 public class FileUtils {
     public static void ensureDir(Path dir) {
