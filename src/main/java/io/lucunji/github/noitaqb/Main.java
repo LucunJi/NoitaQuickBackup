@@ -8,7 +8,7 @@ import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 public class Main {
     public static void main(String[] args) {
@@ -20,7 +20,7 @@ public class Main {
             e.printStackTrace();
             return;
         }
-        var cfgManager = new ConfigManager(Paths.get(executablePath, "configs.json"));
+        var cfgManager = new ConfigManager(Path.of(executablePath).getParent().resolve("configs.json"));
         cfgManager.loadOrCreate(); // no lazy-loading because we want to identify errors early
         System.out.println("Configs loaded");
 
