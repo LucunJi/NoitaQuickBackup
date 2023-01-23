@@ -25,6 +25,14 @@ public class Configs {
         private String savePath;
         @Getter
         private String backupPath;
+        @Getter @Setter
+        private int windowX = 0;
+        @Getter @Setter
+        private int windowY = 0;
+        @Getter @Setter
+        private int windowWidth = 480;
+        @Getter @Setter
+        private int windowHeight = 640;
 
         public General() {
             if (SystemUtils.IS_OS_LINUX) {
@@ -36,24 +44,32 @@ public class Configs {
     }
 
     public static class Save {
-        @Getter
-        @Setter
-        private boolean backupPlayerData = true;
-        @Getter
-        @Setter
-        private boolean backupWorldData = true;
+//        @Getter
+//        @Setter
+//        private boolean backupPlayerData = true;
+//        @Getter
+//        @Setter
+//        private boolean backupWorldData = true;
     }
 
     public static class QSave {
-        @Getter
-        @Setter
-        private boolean backupPlayerData = true;
-        @Getter
-        @Setter
-        private boolean backupWorldData = true;
+//        @Getter
+//        @Setter
+//        private boolean backupPlayerData = true;
+//        @Getter
+//        @Setter
+//        private boolean backupWorldData = true;
     }
 
     public static class Load {
-
+        @Getter
+        @Setter
+        private boolean qbBeforeLoad = true;
+//        @Getter
+//        @Setter
+//        private boolean loadPlayerData = true;
+//        @Getter
+//        @Setter
+//        private boolean loadWorldData = true;
     }
 }

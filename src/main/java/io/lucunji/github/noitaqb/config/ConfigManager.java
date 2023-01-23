@@ -42,4 +42,13 @@ public class ConfigManager {
         if (cfg == null) throw new NoSuchElementException("No config loaded");
         return cfg;
     }
+
+    public void save() {
+        FileUtils.ensureDir(cfgFile.getParent());
+        try (var writer = new BufferedWriter(new FileWriter(cfgFile.toFile()))) {
+            saver.toJson(cfg, writer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
