@@ -1,6 +1,6 @@
-package io.lucunji.github.noitaqb.gui;
+package io.github.lucunji.noitaqb.gui;
 
-import io.lucunji.github.noitaqb.model.Backup;
+import io.github.lucunji.noitaqb.model.Backup;
 import lombok.Getter;
 
 import javax.swing.*;

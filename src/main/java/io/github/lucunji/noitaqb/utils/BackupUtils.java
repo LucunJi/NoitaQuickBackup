@@ -1,6 +1,6 @@
-package io.lucunji.github.noitaqb.utils;
+package io.github.lucunji.noitaqb.utils;
 
-import io.lucunji.github.noitaqb.model.Backup;
+import io.github.lucunji.noitaqb.model.Backup;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.examples.Archiver;

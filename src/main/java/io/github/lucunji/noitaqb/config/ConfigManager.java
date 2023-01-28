@@ -1,8 +1,8 @@
-package io.lucunji.github.noitaqb.config;
+package io.github.lucunji.noitaqb.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import io.lucunji.github.noitaqb.utils.FileUtils;
+import io.github.lucunji.noitaqb.utils.FileUtils;
 
 import java.io.*;
 import java.nio.file.Path;

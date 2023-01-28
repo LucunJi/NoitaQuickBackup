@@ -1,9 +1,9 @@
-package io.lucunji.github.noitaqb.gui;
+package io.github.lucunji.noitaqb.gui;
 
-import io.lucunji.github.noitaqb.config.ConfigManager;
-import io.lucunji.github.noitaqb.model.Backup;
-import io.lucunji.github.noitaqb.utils.ArchiveMode;
-import io.lucunji.github.noitaqb.utils.BackupUtils;
+import io.github.lucunji.noitaqb.config.ConfigManager;
+import io.github.lucunji.noitaqb.model.Backup;
+import io.github.lucunji.noitaqb.utils.ArchiveMode;
+import io.github.lucunji.noitaqb.utils.BackupUtils;
 import org.apache.commons.compress.archivers.ArchiveException;
 
 import javax.swing.*;

@@ -1,8 +1,8 @@
-package io.lucunji.github.noitaqb;
+package io.github.lucunji.noitaqb;
 
-import io.lucunji.github.noitaqb.config.ConfigManager;
-import io.lucunji.github.noitaqb.gui.MainWindow;
-import io.lucunji.github.noitaqb.utils.FileUtils;
+import io.github.lucunji.noitaqb.utils.FileUtils;
+import io.github.lucunji.noitaqb.config.ConfigManager;
+import io.github.lucunji.noitaqb.gui.MainWindow;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;

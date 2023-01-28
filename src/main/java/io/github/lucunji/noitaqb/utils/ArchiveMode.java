@@ -1,4 +1,4 @@
-package io.lucunji.github.noitaqb.utils;
+package io.github.lucunji.noitaqb.utils;
 
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 

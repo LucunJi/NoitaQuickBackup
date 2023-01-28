@@ -1,6 +1,6 @@
-package io.lucunji.github.noitaqb.utils;
+package io.github.lucunji.noitaqb.utils;
 
-import io.lucunji.github.noitaqb.Main;
+import io.github.lucunji.noitaqb.Main;
 import org.apache.commons.compress.utils.FileNameUtils;
 
 import java.net.URISyntaxException;

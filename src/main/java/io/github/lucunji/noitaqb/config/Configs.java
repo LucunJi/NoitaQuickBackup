@@ -1,4 +1,4 @@
-package io.lucunji.github.noitaqb.config;
+package io.github.lucunji.noitaqb.config;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,4 +1,4 @@
-package io.lucunji.github.noitaqb.model;
+package io.github.lucunji.noitaqb.model;
 
 import lombok.Getter;
 import org.apache.commons.compress.utils.FileNameUtils;
