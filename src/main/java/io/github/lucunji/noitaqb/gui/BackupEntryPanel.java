@@ -12,16 +12,14 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import static io.github.lucunji.noitaqb.utils.SwingUIFactory.create;
+
 public class BackupEntryPanel extends JPanel {
     public static final String UNKNOWN_STRING = "unknown";
     public static final String BACKUP_TIME_PATTERN = "yyyy-MM-dd hh:mm:ss";
     public static final String BACKUP_SEED_PATTERN = "seed: %s";
 
     private final JRadioButton radioButton;
-    private final JLabel nameLabel;
-    private final JLabel timeLabel;
-    private final JLabel seedlabel;
-    private final JLabel miscLabel;
 
     @Getter
     private final Backup backup;
@@ -39,20 +37,16 @@ public class BackupEntryPanel extends JPanel {
         var seedStr = BACKUP_SEED_PATTERN.formatted(
                 backup.getSeed().map(Objects::toString).orElse(UNKNOWN_STRING)
         );
-        nameLabel = new JLabel(backup.getName());
-        timeLabel = new JLabel(timeStr);
-        seedlabel = new JLabel(seedStr);
-        // TODO: miscLabel of file size and format
-        miscLabel = new JLabel(UNKNOWN_STRING);
-        final var innerPanel = new JPanel(new GridLayout(2, 2));
 
         this.setLayout(new BorderLayout());
         this.add(radioButton, BorderLayout.WEST);
-        this.add(innerPanel, BorderLayout.CENTER);
-        innerPanel.add(nameLabel);
-        innerPanel.add(timeLabel);
-        innerPanel.add(seedlabel);
-        innerPanel.add(miscLabel);
+        this.add(create(new JPanel()).layout(new GridLayout(2, 2))
+                        .children(
+                                new JLabel(backup.getName()), new JLabel(timeStr),
+                                new JLabel(seedStr), new JLabel(UNKNOWN_STRING) // TODO: use the last label for file size and format
+                        ).finish(),
+                BorderLayout.CENTER);
+
         this.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 0, 5),
                 BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)));

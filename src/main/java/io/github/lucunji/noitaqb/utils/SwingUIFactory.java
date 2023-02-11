@@ -2,7 +2,7 @@ package io.github.lucunji.noitaqb.utils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.function.Consumer;
+import java.awt.event.ActionListener;
 
 /**
  * A factory class for constructing Swing UI with more natural semantics
@@ -45,8 +45,9 @@ public class SwingUIFactory<T extends JComponent> {
         return this;
     }
 
-    public SwingUIFactory<T> run(Consumer<T> func) {
-        func.accept(this.component);
+    public SwingUIFactory<T> onAction(ActionListener listener) {
+        if (this.component instanceof AbstractButton btn) btn.addActionListener(listener);
+        else throw new UnsupportedOperationException("Not an instance of AbstractButton");
         return this;
     }
 

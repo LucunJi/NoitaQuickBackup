@@ -26,8 +26,7 @@ public class Main {
 
         System.out.println("Launching main window");
         JFrame frame = new JFrame("QuickBackup");
-        var qb = new MainWindow(cfgManager);
-        frame.setContentPane(qb.rootPane);
+        frame.setContentPane(new MainWindow(cfgManager).getRootPane());
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         var general = cfgManager.getConfigs().getGeneral();
         frame.setBounds(general.getWindowX(), general.getWindowY(), general.getWindowWidth(), general.getWindowHeight());
