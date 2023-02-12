@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import io.github.lucunji.noitaqb.utils.FileUtils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
@@ -24,7 +25,7 @@ public class ConfigManager {
     }
 
     public void loadOrCreate() throws IOException {
-        if (!cfgFile.toFile().exists()) {
+        if (!Files.exists(cfgFile)) {
             System.out.println("Could not find config file at " + cfgFile + ", creating a default one");
             FileUtils.ensureDir(cfgFile.getParent(), true);
             try (var writer = new BufferedWriter(new FileWriter(cfgFile.toFile()))) {

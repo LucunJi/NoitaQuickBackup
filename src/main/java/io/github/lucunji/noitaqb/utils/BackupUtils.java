@@ -31,7 +31,7 @@ public class BackupUtils {
      */
     public static Backup[] loadBackups(String backupPath) throws IOException {
         var path = Path.of(backupPath);
-        if (!path.toFile().exists()) return new Backup[]{};
+        if (!Files.exists(path)) return new Backup[]{};
 
         try (var stream = Files.list(path)) {
             return stream
@@ -52,7 +52,7 @@ public class BackupUtils {
         var backupFile = Paths.get(backupPath, name + "." + mode.extension);
 
         // avoid file collision
-        if (backupFile.toFile().exists()) {
+        if (Files.exists(backupFile)) {
             throw new IOException("Backup file already exists: " + backupFile);
         }
 

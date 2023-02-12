@@ -21,7 +21,7 @@ public class Backup {
     private final Long seed;
 
     public Backup(Path path) {
-        final String fullname = path.toFile().getName();
+        final String fullname = path.getFileName().toString();
         this.name = FileNameUtils.getBaseName(fullname);
         this.extension = FileNameUtils.getExtension(fullname);
         this.directory = path.getParent();

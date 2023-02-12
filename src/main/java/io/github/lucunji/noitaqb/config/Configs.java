@@ -4,8 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SystemUtils;
 
-import java.nio.file.Paths;
-
 public class Configs {
     public static final String LINUX_SAVE_PATH =
             ".steam/steam/steamapps/compatdata/881100/pfx/drive_c/users/steamuser/AppData/LocalLow/Nolla_Games_Noita/";
@@ -36,9 +34,9 @@ public class Configs {
 
         public General() {
             if (SystemUtils.IS_OS_LINUX) {
-                var home = SystemUtils.getUserHome().getAbsolutePath();
-                savePath = Paths.get(home, LINUX_SAVE_PATH).toFile().getAbsolutePath();
-                backupPath = Paths.get(home, DEFAULT_BACKUP_PATH).toFile().getAbsolutePath();
+                var home = SystemUtils.getUserHome().toPath();
+                savePath = home.resolve(LINUX_SAVE_PATH).toAbsolutePath().toString();
+                backupPath = home.resolve(DEFAULT_BACKUP_PATH).toAbsolutePath().toString();
             }
         }
     }
