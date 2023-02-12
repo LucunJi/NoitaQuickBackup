@@ -1,5 +1,6 @@
 package io.github.lucunji.noitaqb.config;
 
+import io.github.lucunji.noitaqb.utils.FileUtils;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.SystemUtils;
@@ -34,9 +35,8 @@ public class Configs {
 
         public General() {
             if (SystemUtils.IS_OS_LINUX) {
-                var home = SystemUtils.getUserHome().toPath();
-                savePath = home.resolve(LINUX_SAVE_PATH).toAbsolutePath().toString();
-                backupPath = home.resolve(DEFAULT_BACKUP_PATH).toAbsolutePath().toString();
+                savePath = SystemUtils.getUserHome().toPath().resolve(LINUX_SAVE_PATH).toAbsolutePath().toString();
+                backupPath = FileUtils.getExecutablePath().getParent().resolve(DEFAULT_BACKUP_PATH).toAbsolutePath().toString();
             }
         }
     }

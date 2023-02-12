@@ -21,14 +21,7 @@ public class BackupDisplayEntryController {
         this.backupEntryMouseListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                switch (e.getButton()) {
-                    case MouseEvent.BUTTON1:
-                        backupDisplayEntry.radioButton.doClick();
-                        break;
-                    case MouseEvent.BUTTON3:
-                        backupDisplayEntry.showRightClickMenu();
-                        break;
-                }
+                if (e.getButton() == MouseEvent.BUTTON1) backupDisplayEntry.radioButton.doClick();
             }
         };
     }

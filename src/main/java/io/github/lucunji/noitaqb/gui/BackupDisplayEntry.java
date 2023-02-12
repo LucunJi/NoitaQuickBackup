@@ -22,11 +22,11 @@ public class BackupDisplayEntry extends JPanel {
 
     @Getter
     private final Backup backup;
-    private final BackupDisplayEntryController controller;
 
     public BackupDisplayEntry(Backup backup) {
         super();
         this.backup = backup;
+        var controller = new BackupDisplayEntryController(this);
 
         radioButton = new JRadioButton();
         var timeStr = backup.getFileAttributes().map(
@@ -47,27 +47,25 @@ public class BackupDisplayEntry extends JPanel {
                         ).finish(),
                 BorderLayout.CENTER);
 
+        // right-click menu, set once is enough
+        this.setComponentPopupMenu(create(new JPopupMenu())
+                .children(
+                        create(new JMenuItem("Rename")).onAction(controller::onRename).finish(),
+                        new JPopupMenu.Separator(),
+                        create(new JMenuItem("Delete")).onAction(controller::onDelete).finish()
+                ).finish()
+        );
+
         this.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 0, 5),
                 BorderFactory.createEtchedBorder(EtchedBorder.LOWERED)));
         this.setMaximumSize(new Dimension(this.getMaximumSize().width, this.getPreferredSize().height));
 
-        this.controller = new BackupDisplayEntryController(this);
         this.addMouseListener(controller.backupEntryMouseListener);
     }
 
     public boolean isSelected() {
         return this.radioButton.isSelected();
-    }
-
-    public void showRightClickMenu() {
-        this.setComponentPopupMenu(create(new JPopupMenu())
-                .children(
-                        create(new JMenuItem("Rename")).onAction(this.controller::onRename).finish(),
-                        new JPopupMenu.Separator(),
-                        create(new JMenuItem("Delete")).onAction(this.controller::onDelete).finish()
-                ).finish()
-        );
     }
 
     public void updateName(String newName) {

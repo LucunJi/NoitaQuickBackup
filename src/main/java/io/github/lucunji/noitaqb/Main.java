@@ -1,8 +1,9 @@
 package io.github.lucunji.noitaqb;
 
-import io.github.lucunji.noitaqb.utils.FileUtils;
+import com.formdev.flatlaf.FlatDarkLaf;
 import io.github.lucunji.noitaqb.config.ConfigManager;
 import io.github.lucunji.noitaqb.gui.MainWindow;
+import io.github.lucunji.noitaqb.utils.FileUtils;
 import io.github.lucunji.noitaqb.utils.SwingUtils;
 
 import javax.swing.*;
@@ -26,6 +27,8 @@ public class Main {
         System.out.println("Configs loaded");
 
         System.out.println("Launching main window");
+        FlatDarkLaf.setup();
+
         mainFrame = new JFrame("QuickBackup");
         mainFrame.setContentPane(new MainWindow().getRootPane());
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
