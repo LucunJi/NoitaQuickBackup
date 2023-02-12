@@ -29,7 +29,7 @@ public class BackupUtils {
      * All backups with valid extensions
      * Sorted in the reverse order of creation time
      */
-    public static Backup[] loadBackups(String backupPath) throws IOException {
+    public static Backup[] listBackups(String backupPath) throws IOException {
         var path = Path.of(backupPath);
         if (!Files.exists(path)) return new Backup[]{};
 
@@ -74,7 +74,7 @@ public class BackupUtils {
     public static void loadBackup(Path backupPath, String savePath) throws IOException, ArchiveException {
         var currentSave = Paths.get(savePath, SAVE_SLOT_0);
 
-        if (Files.exists(currentSave)) FileUtils.deleteDirectoryRecursive(backupPath);
+        if (Files.exists(currentSave)) FileUtils.deleteDirectoryRecursive(currentSave);
         Files.createDirectories(currentSave);
 
         try (var input = new ArchiveStreamFactory().createArchiveInputStream(
@@ -82,5 +82,13 @@ public class BackupUtils {
         )) {
             DEFAULT_EXPANDER.expand(input, currentSave.toFile());
         }
+    }
+
+    public static void removeBackup(Path backupPath) throws IOException {
+        Files.delete(backupPath);
+    }
+
+    public static void renameBackup(Path folder, String oldFullName, String newFullName) throws IOException {
+        Files.move(folder.resolve(oldFullName), folder.resolve(newFullName));
     }
 }

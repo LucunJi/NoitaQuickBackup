@@ -3,6 +3,7 @@ package io.github.lucunji.noitaqb;
 import io.github.lucunji.noitaqb.utils.FileUtils;
 import io.github.lucunji.noitaqb.config.ConfigManager;
 import io.github.lucunji.noitaqb.gui.MainWindow;
+import io.github.lucunji.noitaqb.utils.SwingUtils;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -47,6 +48,7 @@ public class Main {
             }
         });
         mainFrame.setVisible(true);
+        SwingUtils.refreshDisplay(mainFrame);
         System.out.println("Main window launched");
     }
 }

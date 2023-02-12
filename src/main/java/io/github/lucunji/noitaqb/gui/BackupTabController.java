@@ -4,6 +4,7 @@ import io.github.lucunji.noitaqb.Main;
 import io.github.lucunji.noitaqb.model.Backup;
 import io.github.lucunji.noitaqb.utils.ArchiveMode;
 import io.github.lucunji.noitaqb.utils.BackupUtils;
+import io.github.lucunji.noitaqb.utils.SwingUtils;
 import org.apache.commons.compress.archivers.ArchiveException;
 
 import javax.swing.*;
@@ -26,9 +27,7 @@ public class BackupTabController {
             @Override
             public void componentRemoved(ContainerEvent e) {
                 var component = e.getChild();
-                if (component instanceof BackupEntryPanel) {
-                    ((BackupEntryPanel) component).deregisterRadioButton(backupTab.backupEntryGroup);
-                }
+                if (component instanceof BackupDisplayEntry) removeBackupDisplayEntry(((BackupDisplayEntry) component));
             }
         };
     }
@@ -37,7 +36,7 @@ public class BackupTabController {
         var name = JOptionPane.showInputDialog("Backup name", "backup-" + System.currentTimeMillis());
         if (name == null) return;
         try {
-            addBackupEntry(name);
+            addNewBackup(name);
         } catch (IOException | ArchiveException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Backup", JOptionPane.ERROR_MESSAGE);
@@ -48,7 +47,7 @@ public class BackupTabController {
     protected void onQbButtonClicked(ActionEvent ignoredEvent) {
         var name = "quick-backup-" + System.currentTimeMillis();
         try {
-            addBackupEntry(name);
+            addNewBackup(name);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Quick backup", JOptionPane.ERROR_MESSAGE);
@@ -57,7 +56,7 @@ public class BackupTabController {
     }
 
     protected void onLoadButtonClicked(ActionEvent ignoredEvent) {
-        var path = getSelectedBackupEntry();
+        var path = getSelectedBackupDisplayEntry();
         if (path.isEmpty()) {
             JOptionPane.showMessageDialog(backupTab, "No backup is selected");
             return;
@@ -65,11 +64,11 @@ public class BackupTabController {
 
         try {
             var replacedSaveName = "preload-backup-" + System.currentTimeMillis();
-            addBackupEntry(replacedSaveName);
+            addNewBackup(replacedSaveName);
             BackupUtils.loadBackup(path.get(), Main.cfgManager.getConfigs().getGeneral().getSavePath());
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Load save", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Load", JOptionPane.ERROR_MESSAGE);
             reloadBackups();
         }
     }
@@ -78,36 +77,46 @@ public class BackupTabController {
         String backupPath = Main.cfgManager.getConfigs().getGeneral().getBackupPath();
         Backup[] backups;
         try {
-            backups = BackupUtils.loadBackups(backupPath);
+            backups = BackupUtils.listBackups(backupPath);
         } catch (Exception e) {
             // skip if failed
             e.printStackTrace();
-            System.out.println("Could not load backups in directory " + backupPath);
+            System.out.println("Could not load backups in directory: " + backupPath);
             return;
         }
 
         backupTab.backupsPanel.removeAll();
         for (Backup backup : backups) {
-            var save = backupTab.makeBackupPanel(backup);
+            var save = addBackupDisplayEntry(backup);
             backupTab.backupsPanel.add(save);
         }
-        backupTab.refreshBackupEntryPanel();
+        SwingUtils.refreshDisplay(backupTab);
     }
 
-    private void addBackupEntry(String name) throws IOException, ArchiveException {
+    private void addNewBackup(String name) throws IOException, ArchiveException {
         final ArchiveMode mode = ArchiveMode.ZIP_ARCHIVE;
         var cfgGeneral = Main.cfgManager.getConfigs().getGeneral();
         Backup backup = BackupUtils.makeBackup(name, cfgGeneral.getBackupPath(), cfgGeneral.getSavePath(), mode);
-        var save = backupTab.makeBackupPanel(backup);
+        var save = addBackupDisplayEntry(backup);
         backupTab.backupsPanel.add(save, 0);
-        backupTab.refreshBackupEntryPanel();
+        SwingUtils.refreshDisplay(backupTab);
     }
 
-    private Optional<Path> getSelectedBackupEntry() {
+    private JPanel addBackupDisplayEntry(Backup backup) {
+        var entry = new BackupDisplayEntry(backup);
+        backupTab.backupEntryGroup.add(entry.radioButton);
+        return entry;
+    }
+
+    private void removeBackupDisplayEntry(BackupDisplayEntry entry) {
+        backupTab.backupEntryGroup.remove(entry.radioButton);
+    }
+
+    private Optional<Path> getSelectedBackupDisplayEntry() {
         Path path = null;
         for (var c : backupTab.backupsPanel.getComponents()) {
-            if (c instanceof BackupEntryPanel && ((BackupEntryPanel) c).isSelected()) {
-                path = ((BackupEntryPanel) c).getBackup().getPath();
+            if (c instanceof BackupDisplayEntry && ((BackupDisplayEntry) c).isSelected()) {
+                path = ((BackupDisplayEntry) c).getBackup().getPath();
                 break;
             }
         }

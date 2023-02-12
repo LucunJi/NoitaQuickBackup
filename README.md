@@ -10,11 +10,11 @@
   - [ ] customizable name format
   - [ ] maximum quick backup amount
 - [ ] misc
-  - [ ] delete backup
-  - [ ] rename backup
+  - [x] delete backup
+  - [x] rename backup
   - [ ] partial backup/load
   - [ ] subdir for different series of saves
-  - [ ] better error-handling
+  - [x] better error-handling
   - [ ] sync when backup directory changes
   - [ ] config screen
   - [ ] localization

@@ -1,7 +1,5 @@
 package io.github.lucunji.noitaqb.gui;
 
-import io.github.lucunji.noitaqb.model.Backup;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,8 +7,8 @@ import java.awt.*;
 import static io.github.lucunji.noitaqb.utils.SwingUIBuilder.create;
 
 public class BackupTab extends JPanel {
-    protected final JPanel backupsPanel;
-    protected final ButtonGroup backupEntryGroup;
+    final JPanel backupsPanel;
+    final ButtonGroup backupEntryGroup;
 
     public BackupTab() {
         super();
@@ -32,11 +30,4 @@ public class BackupTab extends JPanel {
 
         controller.reloadBackups();
     }
-
-    protected void refreshBackupEntryPanel() {
-        backupsPanel.repaint();
-        backupsPanel.revalidate();
-    }
-
-    protected JPanel makeBackupPanel(Backup backup) {return new BackupEntryPanel(backup, backupEntryGroup);}
 }
