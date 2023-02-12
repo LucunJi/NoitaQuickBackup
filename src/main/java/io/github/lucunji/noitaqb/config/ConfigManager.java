@@ -8,6 +8,9 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.NoSuchElementException;
 
+/**
+ * Do not handle exceptions here early
+ */
 public class ConfigManager {
     private final Gson loader;
     private final Gson saver;
@@ -20,21 +23,17 @@ public class ConfigManager {
         this.cfgFile = cfgFile;
     }
 
-    public void loadOrCreate() {
+    public void loadOrCreate() throws IOException {
         if (!cfgFile.toFile().exists()) {
             System.out.println("Could not find config file at " + cfgFile + ", creating a default one");
-            FileUtils.ensureDir(cfgFile.getParent());
+            FileUtils.ensureDir(cfgFile.getParent(), true);
             try (var writer = new BufferedWriter(new FileWriter(cfgFile.toFile()))) {
                 saver.toJson(new Configs(), writer);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
             }
         }
 
         try (var reader = new BufferedReader(new FileReader(cfgFile.toFile()))) {
             cfg = loader.fromJson(reader, Configs.class);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
@@ -43,12 +42,10 @@ public class ConfigManager {
         return cfg;
     }
 
-    public void save() {
-        FileUtils.ensureDir(cfgFile.getParent());
+    public void save() throws IOException {
+        FileUtils.ensureDir(cfgFile.getParent(), true);
         try (var writer = new BufferedWriter(new FileWriter(cfgFile.toFile()))) {
             saver.toJson(cfg, writer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 }

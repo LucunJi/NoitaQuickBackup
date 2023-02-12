@@ -1,21 +1,20 @@
 package io.github.lucunji.noitaqb.gui;
 
-import io.github.lucunji.noitaqb.config.ConfigManager;
 import io.github.lucunji.noitaqb.model.Backup;
 
 import javax.swing.*;
 import java.awt.*;
 
 
-import static io.github.lucunji.noitaqb.utils.SwingUIFactory.create;
+import static io.github.lucunji.noitaqb.utils.SwingUIBuilder.create;
 
 public class BackupTab extends JPanel {
     protected final JPanel backupsPanel;
     protected final ButtonGroup backupEntryGroup;
 
-    public BackupTab(ConfigManager cfgManager) {
+    public BackupTab() {
         super();
-        BackupTabController controller = new BackupTabController(this, cfgManager);
+        BackupTabController controller = new BackupTabController(this);
 
         this.setLayout(new BorderLayout());
         this.add(new JScrollPane(
@@ -25,8 +24,7 @@ public class BackupTab extends JPanel {
                 .children(
                         create(new JButton("Backup")).onAction(controller::onBackupButtonClicked).finish(),
                         create(new JButton("Quick Backup")).onAction(controller::onQbButtonClicked).finish(),
-                        create(new JButton("Load")).onAction(controller::onLoadButtonClicked).finish(),
-                        create(new JButton("Refresh")).onAction(controller::onRefreshButtonClicked).finish()
+                        create(new JButton("Load")).onAction(controller::onLoadButtonClicked).finish()
                 ).finish(), BorderLayout.SOUTH);
 
         backupEntryGroup = new ButtonGroup();

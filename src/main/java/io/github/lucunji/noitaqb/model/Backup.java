@@ -29,6 +29,7 @@ public class Backup {
         try {
              attr = Files.readAttributes(path, BasicFileAttributes.class);
         } catch (IOException e) {
+            // leave it null
             System.out.println("Could not get file attributes for " + path);
         }
         this.fileAttributes = attr;

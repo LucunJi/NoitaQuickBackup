@@ -15,6 +15,9 @@ import java.nio.file.attribute.FileTime;
 import java.util.Comparator;
 import java.util.Set;
 
+/**
+ * Do not handle exception early here
+ */
 public class BackupUtils {
     private static final String SAVE_SLOT_0 = "save00";
     private static final Set<String> BACKUP_EXTENSIONS = Set.of("zip");
@@ -41,42 +44,43 @@ public class BackupUtils {
         }
     }
 
-    public static Backup makeBackup(String name, String backupPath, String savePath, ArchiveMode mode) throws IOException, ArchiveException {
+    public static Backup makeBackup(String name, String backupPath, String savePath, ArchiveMode mode)
+            throws IOException, ArchiveException {
+
         var dir = Paths.get(savePath, SAVE_SLOT_0);
         var backupDir = Path.of(backupPath);
-        var backup = Paths.get(backupPath, name + "." + mode.extension);
+        var backupFile = Paths.get(backupPath, name + "." + mode.extension);
 
         // avoid file collision
-        for (int i = 0; backup.toFile().exists(); i++) {
-            backup = Paths.get(backupPath, name + " (" + i + ")." + mode.extension);
+        if (backupFile.toFile().exists()) {
+            throw new IOException("Backup file already exists: " + backupFile);
         }
 
-        FileUtils.ensureDir(backupDir);
+        FileUtils.ensureDir(backupDir, true);
 
         if (mode.compressed) {
-            // FIXME
-            throw new UnsupportedOperationException("Compressed archive");
+            throw new UnsupportedOperationException("No support for compressed archive");
         } else {
             try (var output = new ArchiveStreamFactory().createArchiveOutputStream(
-                    mode.archiverName, new BufferedOutputStream(new FileOutputStream(backup.toFile()))
+                    mode.archiverName, new BufferedOutputStream(new FileOutputStream(backupFile.toFile()))
             )) {
                 DEFAULT_ARCHIVER.create(output, dir);
             }
         }
 
-        return new Backup(backup);
+        return new Backup(backupFile);
     }
 
     public static void loadBackup(Path backupPath, String savePath) throws IOException, ArchiveException {
-        var dir = Paths.get(savePath, SAVE_SLOT_0);
+        var currentSave = Paths.get(savePath, SAVE_SLOT_0);
 
-        dir.toFile().delete();
-        dir.toFile().mkdir();
+        if (Files.exists(currentSave)) FileUtils.deleteDirectoryRecursive(backupPath);
+        Files.createDirectories(currentSave);
 
         try (var input = new ArchiveStreamFactory().createArchiveInputStream(
                 new BufferedInputStream(new FileInputStream(backupPath.toFile()))
         )) {
-            DEFAULT_EXPANDER.expand(input, dir.toFile());
+            DEFAULT_EXPANDER.expand(input, currentSave.toFile());
         }
     }
 }

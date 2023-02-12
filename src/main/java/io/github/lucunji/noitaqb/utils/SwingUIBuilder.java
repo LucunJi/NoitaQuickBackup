@@ -9,44 +9,44 @@ import java.awt.event.ActionListener;
  *
  * @param <T> type of the current component
  */
-public class SwingUIFactory<T extends JComponent> {
+public class SwingUIBuilder<T extends JComponent> {
     private final T component;
 
-    private SwingUIFactory(T component) {
+    private SwingUIBuilder(T component) {
         this.component = component;
     }
 
-    public static <T extends JComponent> SwingUIFactory<T> create(T root) {
-        return new SwingUIFactory<>(root);
+    public static <T extends JComponent> SwingUIBuilder<T> create(T root) {
+        return new SwingUIBuilder<>(root);
     }
 
-    public SwingUIFactory<T> child(JComponent child) {
+    public SwingUIBuilder<T> child(JComponent child) {
         this.component.add(child);
         return this;
     }
 
-    public SwingUIFactory<T> child(JComponent child, Object constraints) {
+    public SwingUIBuilder<T> child(JComponent child, Object constraints) {
         this.component.add(child, constraints);
         return this;
     }
 
-    public SwingUIFactory<T> child(String title, JComponent child) {
+    public SwingUIBuilder<T> child(String title, JComponent child) {
         this.component.add(title, child);
         return this;
     }
 
-    public SwingUIFactory<T> children(JComponent... children) {
+    public SwingUIBuilder<T> children(JComponent... children) {
         for (var child :  children) this.component.add(child);
         return this;
     }
 
-    public SwingUIFactory<T> layout(LayoutManager layoutManager) {
+    public SwingUIBuilder<T> layout(LayoutManager layoutManager) {
         this.component.setLayout(layoutManager);
         return this;
     }
 
-    public SwingUIFactory<T> onAction(ActionListener listener) {
-        if (this.component instanceof AbstractButton btn) btn.addActionListener(listener);
+    public SwingUIBuilder<T> onAction(ActionListener listener) {
+        if (this.component instanceof AbstractButton) ((AbstractButton) this.component).addActionListener(listener);
         else throw new UnsupportedOperationException("Not an instance of AbstractButton");
         return this;
     }

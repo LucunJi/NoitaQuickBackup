@@ -12,7 +12,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
-import static io.github.lucunji.noitaqb.utils.SwingUIFactory.create;
+import static io.github.lucunji.noitaqb.utils.SwingUIBuilder.create;
 
 public class BackupEntryPanel extends JPanel {
     public static final String UNKNOWN_STRING = "unknown";
@@ -34,7 +34,7 @@ public class BackupEntryPanel extends JPanel {
                         .withZone(ZoneId.systemDefault())
                         .format(a.creationTime().toInstant())
         ).orElse(UNKNOWN_STRING);
-        var seedStr = BACKUP_SEED_PATTERN.formatted(
+        var seedStr = String.format(BACKUP_SEED_PATTERN,
                 backup.getSeed().map(Objects::toString).orElse(UNKNOWN_STRING)
         );
 

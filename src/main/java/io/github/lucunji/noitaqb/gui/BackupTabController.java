@@ -1,6 +1,6 @@
 package io.github.lucunji.noitaqb.gui;
 
-import io.github.lucunji.noitaqb.config.ConfigManager;
+import io.github.lucunji.noitaqb.Main;
 import io.github.lucunji.noitaqb.model.Backup;
 import io.github.lucunji.noitaqb.utils.ArchiveMode;
 import io.github.lucunji.noitaqb.utils.BackupUtils;
@@ -12,16 +12,15 @@ import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class BackupTabController {
     private final BackupTab backupTab;
 
-    private final ConfigManager cfgManager;
     protected final ContainerAdapter backupEntryContainerListener;
 
-    protected BackupTabController(BackupTab backupTab, ConfigManager cfgManager) {
+    protected BackupTabController(BackupTab backupTab) {
         this.backupTab = backupTab;
-        this.cfgManager = cfgManager;
 
         this.backupEntryContainerListener = new ContainerAdapter() {
             @Override
@@ -37,15 +36,74 @@ public class BackupTabController {
     protected void onBackupButtonClicked(ActionEvent ignoredEvent) {
         var name = JOptionPane.showInputDialog("Backup name", "backup-" + System.currentTimeMillis());
         if (name == null) return;
-        addBackupEntry(name);
+        try {
+            addBackupEntry(name);
+        } catch (IOException | ArchiveException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Backup", JOptionPane.ERROR_MESSAGE);
+            reloadBackups();
+        }
     }
 
     protected void onQbButtonClicked(ActionEvent ignoredEvent) {
-        var name = "quickbackup-" + System.currentTimeMillis();
-        addBackupEntry(name);
+        var name = "quick-backup-" + System.currentTimeMillis();
+        try {
+            addBackupEntry(name);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Quick backup", JOptionPane.ERROR_MESSAGE);
+            reloadBackups();
+        }
     }
 
     protected void onLoadButtonClicked(ActionEvent ignoredEvent) {
+        var path = getSelectedBackupEntry();
+        if (path.isEmpty()) {
+            JOptionPane.showMessageDialog(backupTab, "No backup is selected");
+            return;
+        }
+
+        try {
+            var replacedSaveName = "preload-backup-" + System.currentTimeMillis();
+            addBackupEntry(replacedSaveName);
+            BackupUtils.loadBackup(path.get(), Main.cfgManager.getConfigs().getGeneral().getSavePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Load save", JOptionPane.ERROR_MESSAGE);
+            reloadBackups();
+        }
+    }
+
+    protected void reloadBackups() {
+        String backupPath = Main.cfgManager.getConfigs().getGeneral().getBackupPath();
+        Backup[] backups;
+        try {
+            backups = BackupUtils.loadBackups(backupPath);
+        } catch (Exception e) {
+            // skip if failed
+            e.printStackTrace();
+            System.out.println("Could not load backups in directory " + backupPath);
+            return;
+        }
+
+        backupTab.backupsPanel.removeAll();
+        for (Backup backup : backups) {
+            var save = backupTab.makeBackupPanel(backup);
+            backupTab.backupsPanel.add(save);
+        }
+        backupTab.refreshBackupEntryPanel();
+    }
+
+    private void addBackupEntry(String name) throws IOException, ArchiveException {
+        final ArchiveMode mode = ArchiveMode.ZIP_ARCHIVE;
+        var cfgGeneral = Main.cfgManager.getConfigs().getGeneral();
+        Backup backup = BackupUtils.makeBackup(name, cfgGeneral.getBackupPath(), cfgGeneral.getSavePath(), mode);
+        var save = backupTab.makeBackupPanel(backup);
+        backupTab.backupsPanel.add(save, 0);
+        backupTab.refreshBackupEntryPanel();
+    }
+
+    private Optional<Path> getSelectedBackupEntry() {
         Path path = null;
         for (var c : backupTab.backupsPanel.getComponents()) {
             if (c instanceof BackupEntryPanel && ((BackupEntryPanel) c).isSelected()) {
@@ -53,60 +111,6 @@ public class BackupTabController {
                 break;
             }
         }
-        if (path == null) {
-            JOptionPane.showMessageDialog(backupTab, "No backup is selected");
-            return;
-        }
-        if (!path.toFile().isFile()) {
-            JOptionPane.showMessageDialog(backupTab, "Backup not found", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        var replacedSaveName = "quickbackup-" + System.currentTimeMillis() + " (replaced)";
-        addBackupEntry(replacedSaveName);
-
-        try {
-            BackupUtils.loadBackup(path, cfgManager.getConfigs().getGeneral().getSavePath());
-        } catch (IOException | ArchiveException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected void onRefreshButtonClicked(ActionEvent ignoredEvent) {reloadBackups();}
-
-    protected void reloadBackups() {
-        backupTab.backupsPanel.removeAll();
-
-        String backupPath = cfgManager.getConfigs().getGeneral().getBackupPath();
-        Backup[] backups;
-        try {
-            backups = BackupUtils.loadBackups(backupPath);
-        } catch (Exception e) {
-            backups = new Backup[]{};
-            System.out.println("Could not load backups in directory " + backupPath);
-            e.printStackTrace();
-        }
-        for (Backup backup : backups) {
-            var save = backupTab.makeBackupPanel(backup);
-            backupTab.backupsPanel.add(save);
-        }
-
-        backupTab.refreshBackupEntryPanel();
-    }
-
-    protected void addBackupEntry(String name) {
-        final ArchiveMode mode = ArchiveMode.ZIP_ARCHIVE;
-
-        var cfgGeneral = cfgManager.getConfigs().getGeneral();
-        Backup backup;
-        try {
-            backup = BackupUtils.makeBackup(name, cfgGeneral.getBackupPath(), cfgGeneral.getSavePath(), mode);
-        } catch (IOException | ArchiveException e) {
-            throw new RuntimeException(e);
-        }
-        var save = backupTab.makeBackupPanel(backup);
-        backupTab.backupsPanel.add(save, 0);
-
-        backupTab.refreshBackupEntryPanel();
+        return Optional.ofNullable(path);
     }
 }
