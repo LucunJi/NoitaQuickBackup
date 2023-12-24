@@ -4,7 +4,7 @@ import java.awt.*;
 
 public class SwingUtils {
     public static void refreshDisplay(Component component) {
-        component.repaint();
         component.revalidate();
+        component.repaint();
     }
 }

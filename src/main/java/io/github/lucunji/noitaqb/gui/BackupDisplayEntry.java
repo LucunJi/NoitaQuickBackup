@@ -10,6 +10,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
+import org.apache.commons.io.FileUtils;
+
 import static io.github.lucunji.noitaqb.utils.SwingUIBuilder.create;
 
 public class BackupDisplayEntry extends JPanel {
@@ -37,13 +39,15 @@ public class BackupDisplayEntry extends JPanel {
         var seedStr = String.format(BACKUP_SEED_PATTERN,
                 backup.getSeed().map(Objects::toString).orElse(UNKNOWN_STRING)
         );
+        var sizeStr = backup.getFileAttributes()
+            .map(attrs -> FileUtils.byteCountToDisplaySize(attrs.size())).orElse(UNKNOWN_STRING);
 
         this.setLayout(new BorderLayout());
         this.add(radioButton, BorderLayout.WEST);
         this.add(create(new JPanel()).layout(new GridLayout(2, 2))
                         .children(
                                 nameLabel = new JLabel(backup.getName()), new JLabel(timeStr),
-                                new JLabel(seedStr), new JLabel(UNKNOWN_STRING) // TODO: use the last label for file size and format
+                                new JLabel(seedStr), new JLabel(sizeStr)
                         ).finish(),
                 BorderLayout.CENTER);
 

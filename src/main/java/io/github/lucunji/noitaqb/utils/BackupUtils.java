@@ -1,9 +1,10 @@
 package io.github.lucunji.noitaqb.utils;
 
+import io.github.lucunji.noitaqb.archive.ArchiveMode;
+import io.github.lucunji.noitaqb.archive.ArchiveTask;
 import io.github.lucunji.noitaqb.model.Backup;
 import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.archivers.ArchiveStreamFactory;
-import org.apache.commons.compress.archivers.examples.Archiver;
 import org.apache.commons.compress.archivers.examples.Expander;
 
 import java.io.*;
@@ -22,7 +23,6 @@ public class BackupUtils {
     private static final String SAVE_SLOT_0 = "save00";
     private static final Set<String> BACKUP_EXTENSIONS = Set.of("zip");
     private static final FileTime OLDEST_FILETIME = FileTime.fromMillis(Long.MIN_VALUE);
-    private static final Archiver DEFAULT_ARCHIVER = new Archiver();
     private static final Expander DEFAULT_EXPANDER = new Expander();
 
     /**
@@ -42,10 +42,10 @@ public class BackupUtils {
                             .reversed())
                     .toArray(Backup[]::new);
         }
-    }
+    }   
 
-    public static Backup makeBackup(String name, String backupPath, String savePath, ArchiveMode mode)
-            throws IOException, ArchiveException {
+
+    public static ArchiveTask getArchiveTask(String name, String backupPath, String savePath, ArchiveMode mode) throws IOException {
 
         var dir = Paths.get(savePath, SAVE_SLOT_0);
         var backupDir = Path.of(backupPath);
@@ -61,14 +61,8 @@ public class BackupUtils {
         if (mode.compressed) {
             throw new UnsupportedOperationException("No support for compressed archive");
         } else {
-            try (var output = new ArchiveStreamFactory().createArchiveOutputStream(
-                    mode.archiverName, new BufferedOutputStream(new FileOutputStream(backupFile.toFile()))
-            )) {
-                DEFAULT_ARCHIVER.create(output, dir);
-            }
+            return new ArchiveTask(dir, backupFile, mode);
         }
-
-        return new Backup(backupFile);
     }
 
     public static void loadBackup(Path backupPath, String savePath) throws IOException, ArchiveException {
@@ -90,5 +84,32 @@ public class BackupUtils {
 
     public static void renameBackup(Path folder, String oldFullName, String newFullName) throws IOException {
         Files.move(folder.resolve(oldFullName), folder.resolve(newFullName));
+    }
+
+    public static Long findBackupSeed(Path backupFile) throws IOException, ArchiveException {
+        try (var input = new ArchiveStreamFactory().createArchiveInputStream(
+                new BufferedInputStream(new FileInputStream(backupFile.toFile()))
+        )) {
+            var nextEntry = input.getNextEntry();
+            while (nextEntry != null) {
+                while (!input.canReadEntryData(nextEntry) || nextEntry.isDirectory()) {
+                    nextEntry = input.getNextEntry();
+                }
+
+                if (Path.of(nextEntry.getName()).getFileName().toString().equals(".stream_info")) {
+                    input.skipNBytes(13);
+                    var b = input.readNBytes(4);
+                    long seed = 0;
+                    for (byte bi : b) {
+                        seed <<= 8;
+                        seed |= ((long) bi) & 0xFF;
+                    }
+                    return seed;
+                }
+                
+                nextEntry = input.getNextEntry();
+            }
+        }
+        return null;
     }
 }

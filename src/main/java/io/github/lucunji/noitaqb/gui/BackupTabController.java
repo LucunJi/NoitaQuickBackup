@@ -2,12 +2,14 @@ package io.github.lucunji.noitaqb.gui;
 
 import io.github.lucunji.noitaqb.Main;
 import io.github.lucunji.noitaqb.model.Backup;
-import io.github.lucunji.noitaqb.utils.ArchiveMode;
+import io.github.lucunji.noitaqb.archive.ArchiveMode;
 import io.github.lucunji.noitaqb.utils.BackupUtils;
 import io.github.lucunji.noitaqb.utils.SwingUtils;
-import org.apache.commons.compress.archivers.ArchiveException;
 
 import javax.swing.*;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ContainerAdapter;
 import java.awt.event.ContainerEvent;
@@ -33,11 +35,11 @@ public class BackupTabController {
     }
 
     protected void onBackupButtonClicked(ActionEvent ignoredEvent) {
-        var name = JOptionPane.showInputDialog("Backup name", "backup-" + System.currentTimeMillis());
+        var name = JOptionPane.showInputDialog(this.backupTab, "Backup name", "backup-" + System.currentTimeMillis());
         if (name == null) return;
         try {
             addNewBackup(name);
-        } catch (IOException | ArchiveException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Backup", JOptionPane.ERROR_MESSAGE);
             reloadBackups();
@@ -62,10 +64,18 @@ public class BackupTabController {
             return;
         }
 
+        var replacedSaveName = "preload-backup-" + System.currentTimeMillis();
         try {
-            var replacedSaveName = "preload-backup-" + System.currentTimeMillis();
-            addNewBackup(replacedSaveName);
-            BackupUtils.loadBackup(path.get(), Main.cfgManager.getConfigs().getGeneral().getSavePath());
+            addNewBackup(replacedSaveName, () -> {
+                try {
+                    BackupUtils.loadBackup(path.get(), Main.cfgManager.getConfigs().getGeneral().getSavePath());
+                    JOptionPane.showMessageDialog(this.backupTab, "Save loaded", "Load", JOptionPane.INFORMATION_MESSAGE);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Load", JOptionPane.ERROR_MESSAGE);
+                    reloadBackups();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Load", JOptionPane.ERROR_MESSAGE);
@@ -93,13 +103,55 @@ public class BackupTabController {
         SwingUtils.refreshDisplay(backupTab);
     }
 
-    private void addNewBackup(String name) throws IOException, ArchiveException {
+    private void addNewBackup(String name) throws IOException {
+        this.addNewBackup(name, () -> {});
+    }
+
+
+    private void addNewBackup(String name, Runnable callback) throws IOException {
         final ArchiveMode mode = ArchiveMode.ZIP_ARCHIVE;
         var cfgGeneral = Main.cfgManager.getConfigs().getGeneral();
-        Backup backup = BackupUtils.makeBackup(name, cfgGeneral.getBackupPath(), cfgGeneral.getSavePath(), mode);
-        var save = addBackupDisplayEntry(backup);
-        backupTab.backupsPanel.add(save, 0);
-        SwingUtils.refreshDisplay(backupTab);
+
+        // instead of ProgressMonitor, this disables window when showing up
+        var label = new JLabel();
+        var progress = new JProgressBar();
+        var panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel("Backup to " + name), BorderLayout.NORTH);
+        panel.add(label, BorderLayout.CENTER);
+        panel.add(progress, BorderLayout.SOUTH);
+        var monitor = new JOptionPane(panel, JOptionPane.INFORMATION_MESSAGE, JOptionPane.DEFAULT_OPTION, null, new Object[]{}, null)
+            .createDialog(this.backupTab, "Dialog");
+        monitor.setPreferredSize(new Dimension(400, monitor.getHeight()));
+        monitor.pack();
+
+        var task = BackupUtils.getArchiveTask(name, cfgGeneral.getBackupPath(), cfgGeneral.getSavePath(), mode);
+        task.addPropertyChangeListener(event -> {
+            switch (event.getPropertyName()) {
+                case "finished":
+                    label.setText(((Path) event.getNewValue()).toString());
+                    break;
+                case "progress":
+                    progress.setValue((int) event.getNewValue());
+                    break;
+                case "state":
+                    if (task.isDone()) {
+                        try {
+                            var save = addBackupDisplayEntry(task.get());
+                            backupTab.backupsPanel.add(save, 0);
+                            SwingUtils.refreshDisplay(backupTab);
+                            callback.run();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            JOptionPane.showMessageDialog(this.backupTab, e.getMessage(), "Archive", JOptionPane.ERROR_MESSAGE);
+                            reloadBackups();
+                        }
+                        monitor.dispose();
+                    }
+                    break;
+            }
+        });
+        task.execute();
+        monitor.setVisible(true);
     }
 
     private JPanel addBackupDisplayEntry(Backup backup) {

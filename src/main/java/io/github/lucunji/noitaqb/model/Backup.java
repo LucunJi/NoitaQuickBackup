@@ -1,7 +1,11 @@
 package io.github.lucunji.noitaqb.model;
 
 import lombok.Getter;
+
+import org.apache.commons.compress.archivers.ArchiveException;
 import org.apache.commons.compress.utils.FileNameUtils;
+
+import io.github.lucunji.noitaqb.utils.BackupUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +22,7 @@ public class Backup {
     @Getter
     private final Path directory;
     private final BasicFileAttributes fileAttributes;
-    private final Long seed;
+    private Long seed;
 
     public Backup(Path path) {
         final String fullname = path.getFileName().toString();
@@ -29,15 +33,18 @@ public class Backup {
         try {
              attr = Files.readAttributes(path, BasicFileAttributes.class);
         } catch (IOException e) {
-            // leave it null
             System.out.println("Could not get file attributes for " + path);
         }
         this.fileAttributes = attr;
         this.seed = null;
+        try {
+            this.seed = BackupUtils.findBackupSeed(path);
+        } catch (IOException | ArchiveException e) {
+            System.out.println("Could not get seed for " + path);
+        }
     }
 
     public void setName(String name) {
-        // TODO: update file name
         this.name = name;
     }
 

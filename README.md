@@ -12,6 +12,8 @@
 - [ ] misc
   - [x] delete backup
   - [x] rename backup
+  - [ ] better UI-data-storage sync
+  - [ ] further inspect into the issue of blank window when launching
   - [ ] partial backup/load
   - [ ] subdir for different series of saves
   - [x] better error-handling

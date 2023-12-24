@@ -15,9 +15,13 @@ public class BackupTab extends JPanel {
         BackupTabController controller = new BackupTabController(this);
 
         this.setLayout(new BorderLayout());
+
+        // pane listing backups
         this.add(new JScrollPane(
-                create(backupsPanel = new JPanel()).layout(new BoxLayout(backupsPanel, BoxLayout.Y_AXIS)).finish()
+                create(backupsPanel = new JPanel()).boxLayout(BoxLayout.Y_AXIS).finish()
         ), BorderLayout.CENTER);
+
+        // buttons
         this.add(create(new JPanel()).layout(new FlowLayout())
                 .children(
                         create(new JButton("Backup")).onAction(controller::onBackupButtonClicked).finish(),

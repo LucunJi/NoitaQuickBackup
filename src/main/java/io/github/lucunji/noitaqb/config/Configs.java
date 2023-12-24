@@ -8,6 +8,7 @@ import org.apache.commons.lang3.SystemUtils;
 public class Configs {
     public static final String LINUX_SAVE_PATH =
             ".steam/steam/steamapps/compatdata/881100/pfx/drive_c/users/steamuser/AppData/LocalLow/Nolla_Games_Noita/";
+    public static final String WINDOWS_SAVE_PATH = "AppData\\LocalLow\\Nolla_Games_Noita\\";
     public static final String DEFAULT_BACKUP_PATH = "noitaqb/";
 
     @Getter
@@ -37,6 +38,9 @@ public class Configs {
             if (SystemUtils.IS_OS_LINUX) {
                 savePath = SystemUtils.getUserHome().toPath().resolve(LINUX_SAVE_PATH).toAbsolutePath().toString();
                 backupPath = FileUtils.getExecutablePath().getParent().resolve(DEFAULT_BACKUP_PATH).toAbsolutePath().toString();
+            } else if (SystemUtils.IS_OS_WINDOWS) {
+                savePath = SystemUtils.getUserHome().toPath().resolve(WINDOWS_SAVE_PATH).toAbsolutePath().toString();
+                backupPath = FileUtils.getExecutablePath().getParent().resolve(DEFAULT_BACKUP_PATH).toString();
             }
         }
     }
